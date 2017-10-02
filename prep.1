@@ -1,0 +1,29 @@
+    1  hostnamectl set-hostname workstation.lab.example.com
+    2  vi /etc/sysconfig/network-scripts/ifcfg-enp0s3 
+    3  systemctl disable NetworkManager
+    4  systemctl disable firewalld
+   26  subscription-manager repos --enable=rhel-7-servers-rpms
+   27  subscription-manager repos --enable=rhel-7-server-rpms
+   28  subscription-manager repos --enable=rhel-7-server-extras-rpms
+   29  subscription-manager repos --enable=rhel-7-server-optional-rpms
+   30  yum install docker device-mapper-libs device-mapper-event-libs
+   31  yum install -y docker-distribution
+DOCKER DISTRIBUION PRIVATE REGISTRY
+   34  systemctl enable docker docker-distribution 
+   35  systemctl start docker docker-distribution
+   36  systemctl status docker docker-distribution
+   38  systemctl disable firewalld
+   82  mkdir /etc/docker-distribution/certs
+   83  cd /etc/docker-distribution/certs/
+   84  openssl req -newkey rsa:4096 -nodes -sha256 -keyout domain.key -x509 -days 365 -out domain.crt
+   86  htpasswd -cB /etc/docker-distribution/registry_passwd registryuser
+   92  yum install httpd-tools
+   93  htpasswd -cB /etc/docker-distribution/registry_passwd registryuser
+   94  mv /etc/docker-distribution/registry/config.yml /root/original-docker-distribution-config.xml
+   95  vi /etc/docker-distribution/registry/config.yml
+   96  systemctl restart docker-distribution
+   97  curl -u registryuser:redhat -k https://localhost:5000/v2/_catalog
+   99  mkdir /etc/docker/certs.d/workstation.giriaddns.net:5000
+  102  docker login https://workstation.giriaddns.net:5000
+  107  yum install createrepo yum-utils 
+  115  reposync --gpgcheck -l --repoid=rhel-7-server-rpms --download_path==/var/www/html
